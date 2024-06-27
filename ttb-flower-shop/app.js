@@ -22,31 +22,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from public directory
 
+// Create uploads directory if it doesn't exist
+const fs = require('fs');
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir);
+}
+
 // Import routes
 const userRoutes = require('./routes/users');
 const authRoutes = require('./routes/auth');
-
-// JWT middleware to protect routes
-const authenticateJWT = (req, res, next) => {
-    const authHeader = req.header('Authorization');
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).send('Access denied');
-    }
-
-    try {
-        const verified = jwt.verify(token, 'your_jwt_secret');
-        req.user = verified;
-        next();
-    } catch (err) {
-        res.status(400).send('Invalid token');
-    }
-};
+const flowerRoutes = require('./routes/flowers');
 
 // Use routes
-app.use('/users', authenticateJWT, userRoutes); // Protect user routes with JWT
+app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
+app.use('/flowers', flowerRoutes);
 
 // Serve home.html as the default page
 app.get('/', (req, res) => {

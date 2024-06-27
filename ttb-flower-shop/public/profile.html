@@ -37,12 +37,18 @@
             cursor: pointer;
             margin-top: 10px;
         }
+        button:hover {
+            background-color: darkblue;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Profile</h2>
         <div id="userInfo" class="user-info"></div>
+        <button id="homeBtn">Home</button>
+        <button id="capturePhotoBtn">Capture Flower Photo</button>
+        <button id="viewPhotosBtn">View Uploaded Photos</button>
         <button id="logoutBtn">Logout</button>
     </div>
     <script>
@@ -76,12 +82,30 @@
             });
         };
 
+        // Home function
+        const goHome = () => {
+            window.location.href = '/home.html';
+        };
+
+        // Capture photo function
+        const capturePhoto = () => {
+            window.location.href = '/capture.html';
+        };
+
+        // View photos function
+        const viewPhotos = () => {
+            window.location.href = '/photos.html';
+        };
+
         // Logout function
         const logout = () => {
             localStorage.removeItem('token');
             window.location.href = '/login.html';
         };
 
+        document.getElementById('homeBtn').addEventListener('click', goHome);
+        document.getElementById('capturePhotoBtn').addEventListener('click', capturePhoto);
+        document.getElementById('viewPhotosBtn').addEventListener('click', viewPhotos);
         document.getElementById('logoutBtn').addEventListener('click', logout);
         fetchUserProfile();
     </script>
