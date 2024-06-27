@@ -4,35 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
     <div class="container">
-        <form id="registrationForm" onsubmit="return validateForm()">
-            <h2>Customer Registration</h2>
-            <div class="form-group">
-                <label for="citizenId">Citizen ID:</label>
-                <input type="text" id="citizenId" name="citizenId" required>
-            </div>
-            <div class="form-group">
-                <label for="firstName">First Name:</label>
-                <input type="text" id="firstName" name="firstName" required>
-            </div>
-            <div class="form-group">
-                <label for="lastName">Last Name:</label>
-                <input type="text" id="lastName" name="lastName" required>
-            </div>
-            <div class="form-group">
-                <label for="mobile">Mobile:</label>
-                <input type="tel" id="mobile" name="mobile" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
+        <h2>Register</h2>
+        <form id="registrationForm" action="http://localhost:3000/auth/register" method="POST">
+            <input type="text" name="citizenId" placeholder="Citizen ID" required>
+            <input type="text" name="firstName" placeholder="First Name" required>
+            <input type="text" name="lastName" placeholder="Last Name" required>
+            <input type="tel" name="mobile" placeholder="Mobile" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
             <button type="submit">Register</button>
         </form>
     </div>
-    <script src="script.js"></script>
+    <script src="/scripts/script.js"></script>
 </body>
 </html>

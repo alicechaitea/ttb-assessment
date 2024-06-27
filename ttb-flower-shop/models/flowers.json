@@ -1,0 +1,17 @@
+[
+    {
+        "name": "Rose",
+        "color": "Red",
+        "price": 10.99
+    },
+    {
+        "name": "Tulip",
+        "color": "Yellow",
+        "price": 6.75
+    },
+    {
+        "name": "Orchid",
+        "color": "Purple",
+        "price": 15.20
+    }
+]

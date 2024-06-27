@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Users</title>
+</head>
+<body>
+    <h1>Users</h1>
+    <div id="userList"></div>
+
+    <script>
+        fetch('/users/list')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('userList');
+                data.forEach(user => {
+                    const userDiv = document.createElement('div');
+                    userDiv.innerHTML = `
+                        <p>Name: ${user.firstName} ${user.lastName}</p>
+                        <form action="/users/delete" method="POST">
+                            <input type="hidden" name="userId" value="${user._id}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    `;
+                    container.appendChild(userDiv);
+                });
+            });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Users</title>
+</head>
+<body>
+    <h1>Users</h1>
+    <div id="userList"></div>
+
+    <script>
+        fetch('/users/list')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('userList');
+                data.forEach(user => {
+                    const userDiv = document.createElement('div');
+                    userDiv.innerHTML = `
+                        <p>Name: ${user.firstName} ${user.lastName}</p>
+                        <form action="/users/delete" method="POST">
+                            <input type="hidden" name="userId" value="${user._id}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    `;
+                    container.appendChild(userDiv);
+                });
+            });
+    </script>
+</body>
+</html>

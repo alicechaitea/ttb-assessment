@@ -1,0 +1,20 @@
+[
+    {
+        "citizenId": "1234567890123",
+        "firstName": "John",
+        "lastName": "Doe",
+        "mobile": "0123456789",
+        "email": "john.doe@example.com",
+        "username": "johndoe",
+        "password": "password123"
+    },
+    {
+        "citizenId": "9876543210987",
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "mobile": "9876543210",
+        "email": "jane.smith@example.com",
+        "username": "janesmith",
+        "password": "password987"
+    }
+]

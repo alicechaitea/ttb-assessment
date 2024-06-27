@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const flowerController = require('../controllers/flowerController');
 
-const flowerSchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    imageUrl: { type: String, required: true },
-    price: { type: Number, required: true }
-});
+// Define routes for flower operations
+router.post('/add', flowerController.addFlower);
+router.post('/update', flowerController.updateFlower);
 
-module.exports = mongoose.model('Flower', flowerSchema);
+module.exports = router;

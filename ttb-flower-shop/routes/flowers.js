@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { uploadFlower, listFlowers } = require('../controllers/flowerController');
+const flowerController = require('../controllers/flowerController');
 
-router.post('/upload', uploadFlower);
-router.get('/list', listFlowers);
+router.post('/add', flowerController.addFlower);
+router.post('/update', flowerController.updateFlower);
 
 module.exports = router;
