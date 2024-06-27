@@ -24,10 +24,22 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
-        img {
-            max-width: 100%;
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+        }
+        .photos-grid img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #fullImage {
+            display: none;
+            width: 100%;
             height: auto;
-            margin-bottom: 10px;
         }
         button {
             padding: 10px;
@@ -47,7 +59,8 @@
 <body>
     <div class="container">
         <h2>Uploaded Photos</h2>
-        <div id="photosContainer"></div>
+        <div id="photosContainer" class="photos-grid"></div>
+        <img id="fullImage" src="" alt="Full size">
         <button id="backBtn">Back to Profile</button>
     </div>
     <script>
@@ -85,6 +98,10 @@
                         img.onerror = () => {
                             console.error('Error loading image:', img.src); // Log image load errors
                             img.remove(); // Remove the image element if it fails to load
+                        };
+                        img.onclick = () => {
+                            document.getElementById('fullImage').src = img.src;
+                            document.getElementById('fullImage').style.display = 'block';
                         };
                         photosContainer.appendChild(img);
                     });

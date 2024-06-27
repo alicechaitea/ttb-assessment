@@ -10,6 +10,7 @@ module.exports = (upload) => {
         const token = authHeader && authHeader.split(' ')[1];
 
         if (!token) {
+            console.error('No token provided');
             return res.status(401).send('Access denied');
         }
 
@@ -18,6 +19,7 @@ module.exports = (upload) => {
             req.user = verified;
             next();
         } catch (err) {
+            console.error('Invalid token:', err.message);
             res.status(400).send('Invalid token');
         }
     };
@@ -68,6 +70,7 @@ module.exports = (upload) => {
                 console.error('Error opening download stream:', error);
                 res.status(500).send('Error opening download stream');
             });
+            res.set('Content-Type', files[0].contentType);
             readStream.pipe(res);
         });
     });
