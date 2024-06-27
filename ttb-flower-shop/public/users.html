@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Users</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+    <h1>Users</h1>
+    <div id="userList"></div>
+
+    <script>
+        fetch('/users/list')  // Fetch from backend on the same origin (port 3000)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Fetched users:', data);  // Log fetched data for debugging
+                const container = document.getElementById('userList');
+                if (data.length === 0) {
+                    container.innerHTML = '<p>No users found.</p>';
+                } else {
+                    data.forEach(user => {
+                        const userDiv = document.createElement('div');
+                        userDiv.innerHTML = `
+                            <p>Name: ${user.firstName} ${user.lastName}</p>
+                            <form action="/users/delete" method="POST">
+                                <input type="hidden" name="userId" value="${user._id}">
+                                <button type="submit">Delete</button>
+                            </form>
+                        `;
+                        container.appendChild(userDiv);
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Error loading users:', err);  // Log any errors for debugging
+                document.getElementById('userList').innerHTML = '<p>Error loading users.</p>';
+            });
+    </script>
+</body>
+</html>

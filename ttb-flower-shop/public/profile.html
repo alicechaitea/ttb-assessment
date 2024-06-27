@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="/styles/styles.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 300px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .user-info {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Profile</h2>
+        <div id="userInfo" class="user-info"></div>
+        <button id="logoutBtn">Logout</button>
+    </div>
+    <script>
+        // Function to fetch user profile
+        const fetchUserProfile = () => {
+            const token = localStorage.getItem('token');
+            fetch('/users/profile', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const userInfoDiv = document.getElementById('userInfo');
+                userInfoDiv.innerHTML = `
+                    <p><strong>Citizen ID:</strong> ${data.citizenId}</p>
+                    <p><strong>Name:</strong> ${data.firstName} ${data.lastName}</p>
+                    <p><strong>Mobile:</strong> ${data.mobile}</p>
+                    <p><strong>Email:</strong> ${data.email}</p>
+                    <p><strong>Username:</strong> ${data.username}</p>
+                `;
+            })
+            .catch(err => {
+                console.error('Error fetching user profile:', err);
+            });
+        };
+
+        // Logout function
+        const logout = () => {
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
+        };
+
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        fetchUserProfile();
+    </script>
+</body>
+</html>
