@@ -49,6 +49,7 @@
         <button id="homeBtn">Home</button>
         <button id="capturePhotoBtn">Capture Flower Photo</button>
         <button id="viewPhotosBtn">View Uploaded Photos</button>
+        <button id="usersBtn">Users</button>
         <button id="logoutBtn">Logout</button>
     </div>
     <script>
@@ -97,6 +98,11 @@
             window.location.href = '/photos.html';
         };
 
+        // Users function
+        const viewUsers = () => {
+            window.location.href = '/users.html';
+        };
+
         // Logout function
         const logout = () => {
             localStorage.removeItem('token');
@@ -106,6 +112,7 @@
         document.getElementById('homeBtn').addEventListener('click', goHome);
         document.getElementById('capturePhotoBtn').addEventListener('click', capturePhoto);
         document.getElementById('viewPhotosBtn').addEventListener('click', viewPhotos);
+        document.getElementById('usersBtn').addEventListener('click', viewUsers);
         document.getElementById('logoutBtn').addEventListener('click', logout);
         fetchUserProfile();
     </script>

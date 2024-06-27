@@ -11,7 +11,21 @@
     <div id="userList"></div>
 
     <script>
-        fetch('/users/list')  // Fetch from backend on the same origin (port 3000)
+        const fetchUsersList = () => {
+            const token = localStorage.getItem('token'); // Get token from local storage
+            if (!token) {
+                console.error('No token found');
+                document.getElementById('userList').innerHTML = '<p>No token found. Please log in.</p>';
+                return;
+            }
+
+            fetch('/users/list', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Include token in request headers
+                    'Content-Type': 'application/json'
+                }
+            })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -19,7 +33,7 @@
                 return response.json();
             })
             .then(data => {
-                console.log('Fetched users:', data);  // Log fetched data for debugging
+                console.log('Fetched users:', data); // Log fetched data for debugging
                 const container = document.getElementById('userList');
                 if (data.length === 0) {
                     container.innerHTML = '<p>No users found.</p>';
@@ -38,9 +52,12 @@
                 }
             })
             .catch(err => {
-                console.error('Error loading users:', err);  // Log any errors for debugging
+                console.error('Error loading users:', err); // Log any errors for debugging
                 document.getElementById('userList').innerHTML = '<p>Error loading users.</p>';
             });
+        };
+
+        fetchUsersList(); // Fetch users list on page load
     </script>
 </body>
 </html>

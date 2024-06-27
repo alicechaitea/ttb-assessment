@@ -24,4 +24,7 @@ const authenticateJWT = (req, res, next) => {
 // Route to view a specific user profile
 router.get('/profile', authenticateJWT, userController.viewProfile);
 
+// Route to get the list of users
+router.get('/list', authenticateJWT, userController.listUsers);
+
 module.exports = router;

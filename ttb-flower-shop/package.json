@@ -12,7 +12,8 @@
   "dependencies": {
     "body-parser": "^1.20.2",
     "express": "^4.19.2",
-    "mongoose": "^8.4.4"
+    "mongoose": "^8.4.4",
+    "multer-gridfs-storage": "^5.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"
@@ -21,7 +22,12 @@
     "ignore": [
       "node_modules"
     ],
-    "watch": ["models/**/*.js", "routes/**/*.js", "controllers/**/*.js", "app.js"],
+    "watch": [
+      "models/**/*.js",
+      "routes/**/*.js",
+      "controllers/**/*.js",
+      "app.js"
+    ],
     "ext": "js"
-}
+  }
 }

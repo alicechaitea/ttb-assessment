@@ -12,3 +12,12 @@ exports.viewProfile = (req, res) => {
         })
         .catch(err => res.status(500).send('Error retrieving user: ' + err.message));
 };
+
+// Controller to list all users
+exports.listUsers = (req, res) => {
+    User.find()
+        .then(users => {
+            res.json(users);
+        })
+        .catch(err => res.status(500).send('Error retrieving users: ' + err.message));
+};

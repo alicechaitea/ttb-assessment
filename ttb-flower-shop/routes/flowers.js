@@ -1,90 +1,76 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const { GridFsStorage } = require('multer-gridfs-storage');
 const mongoose = require('mongoose');
-const path = require('path');
 const jwt = require('jsonwebtoken');
 
-// Mongo URI
-const mongoURI = 'mongodb://localhost:27017/yourDatabaseName';
+module.exports = (upload) => {
+    // Middleware to authenticate JWT
+    const authenticateJWT = (req, res, next) => {
+        const authHeader = req.header('Authorization');
+        const token = authHeader && authHeader.split(' ')[1];
 
-// Create a storage object with GridFS
-const storage = new GridFsStorage({
-    url: mongoURI,
-    file: (req, file) => {
-        return {
-            bucketName: 'uploads', // collection name in MongoDB
-            filename: file.fieldname + '-' + Date.now() + path.extname(file.originalname)
-        };
-    }
-});
+        if (!token) {
+            return res.status(401).send('Access denied');
+        }
 
-// Set up multer for file uploads
-const upload = multer({ storage });
+        try {
+            const verified = jwt.verify(token, 'your_jwt_secret');
+            req.user = verified;
+            next();
+        } catch (err) {
+            res.status(400).send('Invalid token');
+        }
+    };
 
-// Middleware to authenticate JWT
-const authenticateJWT = (req, res, next) => {
-    const authHeader = req.header('Authorization');
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-        return res.status(401).send('Access denied');
-    }
-
-    try {
-        const verified = jwt.verify(token, 'your_jwt_secret');
-        req.user = verified;
-        next();
-    } catch (err) {
-        res.status(400).send('Invalid token');
-    }
-};
-
-// Endpoint to upload flower photo
-router.post('/upload', authenticateJWT, upload.single('photo'), (req, res) => {
-    console.log('File received:', req.file);
-    if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
-    }
-    res.json({ message: 'Photo uploaded successfully!', file: req.file });
-});
-
-// Endpoint to get all photos
-router.get('/photos', authenticateJWT, (req, res) => {
-    const conn = mongoose.createConnection(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    conn.once('open', () => {
-        const gfs = new mongoose.mongo.GridFSBucket(conn.db, {
+    // GridFSBucket instance
+    let gfs;
+    mongoose.connection.once('open', () => {
+        gfs = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
             bucketName: 'uploads'
         });
+    });
 
+    // Endpoint to upload flower photo
+    router.post('/upload', authenticateJWT, upload.single('photo'), (req, res) => {
+        console.log('File received:', req.file);
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+        res.json({ message: 'Photo uploaded successfully!', file: req.file.filename });
+    });
+
+    // Endpoint to get all photos
+    router.get('/photos', authenticateJWT, (req, res) => {
         gfs.find().toArray((err, files) => {
+            if (err) {
+                return res.status(500).json({ message: 'An error occurred', error: err });
+            }
             if (!files || files.length === 0) {
                 return res.status(404).json({ message: 'No photos found' });
             }
             res.json(files);
         });
     });
-});
 
-// Endpoint to get a single photo by filename
-router.get('/photos/:filename', authenticateJWT, (req, res) => {
-    const conn = mongoose.createConnection(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    conn.once('open', () => {
-        const gfs = new mongoose.mongo.GridFSBucket(conn.db, {
-            bucketName: 'uploads'
-        });
-
+    // Endpoint to get a single photo by filename
+    router.get('/photos/:filename', authenticateJWT, (req, res) => {
         gfs.find({ filename: req.params.filename }).toArray((err, files) => {
+            if (err) {
+                console.error('Error finding file:', err);
+                return res.status(500).json({ message: 'An error occurred', error: err });
+            }
             if (!files || files.length === 0) {
+                console.error('No file found with filename:', req.params.filename);
                 return res.status(404).json({ message: 'No file found' });
             }
-
-            gfs.openDownloadStreamByName(req.params.filename).pipe(res);
+            const readStream = gfs.openDownloadStreamByName(req.params.filename);
+            readStream.on('error', (error) => {
+                console.error('Error opening download stream:', error);
+                res.status(500).send('Error opening download stream');
+            });
+            readStream.pipe(res);
         });
     });
-});
 
-module.exports = router;
+    return router;
+};

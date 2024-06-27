@@ -32,6 +32,12 @@
         canvas {
             display: none;
         }
+        img {
+            width: 100%;
+            height: auto;
+            margin-top: 10px;
+            display: none;
+        }
         button {
             padding: 10px;
             font-size: 16px;
@@ -52,15 +58,20 @@
         <h2>Capture Flower Photo</h2>
         <video id="video" autoplay></video>
         <canvas id="canvas"></canvas>
-        <button id="captureBtn">Capture & Upload Photo</button>
+        <img id="capturedPhoto" alt="Captured Photo">
+        <button id="captureBtn">Capture Photo</button>
+        <button id="confirmBtn" style="display: none;">Confirm Upload</button>
         <button id="backBtn">Back to Profile</button>
     </div>
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
+        const capturedPhoto = document.getElementById('capturedPhoto');
         const captureBtn = document.getElementById('captureBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
         const backBtn = document.getElementById('backBtn');
-        
+        let capturedBlob = null;
+
         // Access the camera
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => {
@@ -70,7 +81,7 @@
                 console.error('Error accessing camera:', err);
             });
 
-        // Capture and upload photo
+        // Capture photo
         captureBtn.addEventListener('click', () => {
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
@@ -79,35 +90,54 @@
             
             console.log('Photo captured');  // Debugging log
             
-            const token = localStorage.getItem('token');
             canvas.toBlob(blob => {
-                const formData = new FormData();
-                formData.append('photo', blob, 'flower.jpg');
-                
-                console.log('Uploading photo');  // Debugging log
-                
-                fetch('http://localhost:3000/flowers/upload', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Upload response:', data);  // Debugging log
-                    alert(data.message);
-                })
-                .catch(err => {
-                    console.error('Error uploading photo:', err);
-                    alert('Error uploading photo: ' + err.message);
-                });
+                capturedBlob = blob;
+                const url = URL.createObjectURL(blob);
+                capturedPhoto.src = url;
+                capturedPhoto.style.display = 'block';
+                video.style.display = 'none'; // Hide the video element
+                captureBtn.style.display = 'none';
+                confirmBtn.style.display = 'block';
             }, 'image/jpeg');
+        });
+
+        // Confirm and upload photo
+        confirmBtn.addEventListener('click', () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('No token found');
+                alert('No token found. Please log in.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('photo', capturedBlob, 'flower.jpg');
+            
+            console.log('Uploading photo');  // Debugging log
+            
+            fetch('http://localhost:3000/flowers/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Upload response:', data);  // Debugging log
+                alert(data.message);
+                const uploadedPhotoUrl = `http://localhost:3000/flowers/photos/${data.file}`;
+                capturedPhoto.src = uploadedPhotoUrl; // Update src to the uploaded photo URL
+            })
+            .catch(err => {
+                console.error('Error uploading photo:', err);
+                alert('Error uploading photo: ' + err.message);
+            });
         });
 
         // Back to profile

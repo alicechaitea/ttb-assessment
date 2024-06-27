@@ -51,26 +51,52 @@
         <button id="backBtn">Back to Profile</button>
     </div>
     <script>
-        const token = localStorage.getItem('token');
-        
-        fetch('/flowers/photos', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
+        const fetchPhotos = () => {
+            const token = localStorage.getItem('token'); // Get token from local storage
+            if (!token) {
+                console.error('No token found');
+                document.getElementById('photosContainer').innerHTML = '<p>No token found. Please log in.</p>';
+                return;
             }
-        })
-        .then(response => response.json())
-        .then(files => {
-            const photosContainer = document.getElementById('photosContainer');
-            files.forEach(file => {
-                const img = document.createElement('img');
-                img.src = `/flowers/photos/${file.filename}`;
-                photosContainer.appendChild(img);
+
+            fetch('/flowers/photos', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}` // Include token in request headers
+                }
+            })
+            .then(response => {
+                console.log('Response:', response); // Log response for debugging
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(files => {
+                console.log('Fetched files:', files); // Log fetched files for debugging
+                const photosContainer = document.getElementById('photosContainer');
+                if (files.length === 0) {
+                    photosContainer.innerHTML = '<p>No photos found.</p>';
+                } else {
+                    files.forEach(file => {
+                        const img = document.createElement('img');
+                        img.src = `/flowers/photos/${file.filename}`;
+                        img.alt = file.filename; // Add alt attribute for better accessibility
+                        img.onerror = () => {
+                            console.error('Error loading image:', img.src); // Log image load errors
+                            img.remove(); // Remove the image element if it fails to load
+                        };
+                        photosContainer.appendChild(img);
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Error loading photos:', err); // Log any errors for debugging
+                document.getElementById('photosContainer').innerHTML = '<p>Error loading photos.</p>';
             });
-        })
-        .catch(err => {
-            console.error('Error loading photos:', err);
-        });
+        };
+
+        fetchPhotos(); // Fetch photos on page load
 
         // Back to profile
         document.getElementById('backBtn').addEventListener('click', () => {
