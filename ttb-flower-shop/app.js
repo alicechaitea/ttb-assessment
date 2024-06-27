@@ -5,7 +5,7 @@ const path = require('path');
 const app = express();
 const jwt = require('jsonwebtoken');
 
-// Enable CORS if needed
+// Enable CORS
 app.use(cors());
 
 mongoose.connect('mongodb://localhost:27017/yourDatabaseName', {
@@ -21,13 +21,6 @@ mongoose.connect('mongodb://localhost:27017/yourDatabaseName', {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from public directory
-
-// Create uploads directory if it doesn't exist
-const fs = require('fs');
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir);
-}
 
 // Import routes
 const userRoutes = require('./routes/users');

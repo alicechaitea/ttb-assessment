@@ -21,16 +21,7 @@ const authenticateJWT = (req, res, next) => {
     }
 };
 
-// Route to list all users
-router.get('/list', userController.listUsers);
-
 // Route to view a specific user profile
 router.get('/profile', authenticateJWT, userController.viewProfile);
-
-// Route to update a specific user profile
-router.post('/profile/:id', authenticateJWT, userController.updateProfile);
-
-// Route to handle user deletion
-router.post('/delete', authenticateJWT, userController.deleteUser);
 
 module.exports = router;

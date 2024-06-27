@@ -52,15 +52,13 @@
         <h2>Capture Flower Photo</h2>
         <video id="video" autoplay></video>
         <canvas id="canvas"></canvas>
-        <button id="captureBtn">Capture Photo</button>
-        <button id="uploadBtn">Upload Photo</button>
+        <button id="captureBtn">Capture & Upload Photo</button>
         <button id="backBtn">Back to Profile</button>
     </div>
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const captureBtn = document.getElementById('captureBtn');
-        const uploadBtn = document.getElementById('uploadBtn');
         const backBtn = document.getElementById('backBtn');
         
         // Access the camera
@@ -72,34 +70,42 @@
                 console.error('Error accessing camera:', err);
             });
 
-        // Capture photo
+        // Capture and upload photo
         captureBtn.addEventListener('click', () => {
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        });
-
-        // Upload photo
-        uploadBtn.addEventListener('click', () => {
+            
+            console.log('Photo captured');  // Debugging log
+            
             const token = localStorage.getItem('token');
             canvas.toBlob(blob => {
                 const formData = new FormData();
                 formData.append('photo', blob, 'flower.jpg');
                 
-                fetch('/flowers/upload', {
+                console.log('Uploading photo');  // Debugging log
+                
+                fetch('http://localhost:3000/flowers/upload', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`
                     },
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('Upload response:', data);  // Debugging log
                     alert(data.message);
                 })
                 .catch(err => {
                     console.error('Error uploading photo:', err);
+                    alert('Error uploading photo: ' + err.message);
                 });
             }, 'image/jpeg');
         });

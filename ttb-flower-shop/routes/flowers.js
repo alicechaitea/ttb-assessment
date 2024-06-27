@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const { GridFsStorage } = require('multer-gridfs-storage');
 const mongoose = require('mongoose');
+const path = require('path');
 const jwt = require('jsonwebtoken');
 
 // Mongo URI
@@ -42,6 +43,10 @@ const authenticateJWT = (req, res, next) => {
 
 // Endpoint to upload flower photo
 router.post('/upload', authenticateJWT, upload.single('photo'), (req, res) => {
+    console.log('File received:', req.file);
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+    }
     res.json({ message: 'Photo uploaded successfully!', file: req.file });
 });
 
