@@ -17,7 +17,7 @@
             font-family: Arial, sans-serif;
         }
         .container {
-            width: 600px;
+            width: 800px;
             background-color: white;
             padding: 20px;
             border-radius: 8px;
@@ -26,7 +26,7 @@
         }
         .photos-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 10px;
         }
         .photo-item {
@@ -34,8 +34,8 @@
             text-align: center;
         }
         .photo-item img {
-            width: 100px;
-            height: 100px;
+            width: 100%;
+            height: 150px;
             object-fit: cover;
             border-radius: 4px;
             cursor: pointer;
@@ -47,10 +47,17 @@
             text-decoration: none;
             font-size: 12px;
         }
-        #fullImage {
+        #fullImageContainer {
             display: none;
-            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+        #fullImage {
+            max-width: 100%;
             height: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         button {
             padding: 10px;
@@ -71,28 +78,35 @@
     <div class="container">
         <h2>Uploaded Photos</h2>
         <div id="photosContainer" class="photos-grid"></div>
-        <img id="fullImage" src="" alt="Full size">
+        <div id="fullImageContainer">
+            <img id="fullImage" src="" alt="Full size">
+            <button id="closeFullImageBtn">Close</button>
+        </div>
         <button id="backBtn">Back to Profile</button>
     </div>
     <script>
         const fetchPhotos = () => {
             const token = localStorage.getItem('token'); // Get token from local storage
+            console.log('Token retrieved:', token); // Log the retrieved token for debugging
             if (!token) {
                 console.error('No token found');
                 document.getElementById('photosContainer').innerHTML = '<p>No token found. Please log in.</p>';
                 return;
             }
 
-            fetch('/flowers/list', {
+            fetch('/flowers/photos', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}` // Include token in request headers
                 }
             })
             .then(response => {
-                console.log('Response:', response); // Log response for debugging
+                console.log('Response status:', response.status); // Log response status
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    return response.json().then(errData => {
+                        console.error('Error data:', errData);
+                        throw new Error(`Network response was not ok: ${errData.message}`);
+                    });
                 }
                 return response.json();
             })
@@ -115,11 +129,11 @@
                         };
                         img.onclick = () => {
                             document.getElementById('fullImage').src = img.src;
-                            document.getElementById('fullImage').style.display = 'block';
+                            document.getElementById('fullImageContainer').style.display = 'flex';
                         };
 
                         const downloadLink = document.createElement('a');
-                        downloadLink.href = `/flowers/download/${file.filename}`;
+                        downloadLink.href = `/flowers/photos/${file.filename}`;
                         downloadLink.innerText = 'Download';
                         downloadLink.setAttribute('download', file.filename);
 
@@ -131,7 +145,7 @@
             })
             .catch(err => {
                 console.error('Error loading photos:', err); // Log any errors for debugging
-                document.getElementById('photosContainer').innerHTML = '<p>Error loading photos.</p>';
+                document.getElementById('photosContainer').innerHTML = '<p>Error loading photos: ' + err.message + '</p>';
             });
         };
 
@@ -140,6 +154,11 @@
         // Back to profile
         document.getElementById('backBtn').addEventListener('click', () => {
             window.location.href = '/profile.html';
+        });
+
+        // Close full image view
+        document.getElementById('closeFullImageBtn').addEventListener('click', () => {
+            document.getElementById('fullImageContainer').style.display = 'none';
         });
     </script>
 </body>

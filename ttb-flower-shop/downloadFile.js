@@ -18,7 +18,7 @@ db.once('open', () => {
   });
 
   // Define the filename you want to download
-  const filename = 'photo-1719508447871.jpg';
+  const filename = 'photo-1719551720865.jpg';
 
   // Create a read stream from GridFS
   const readStream = gfs.openDownloadStreamByName(filename);

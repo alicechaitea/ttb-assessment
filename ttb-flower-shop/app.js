@@ -1,11 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
-const jwt = require('jsonwebtoken');
+const cors = require('cors');
 const { GridFsStorage } = require('multer-gridfs-storage');
 const multer = require('multer');
-const { GridFSBucket } = require('mongodb');
+const { GridFSBucket, ObjectId } = require('mongodb');
 
 const app = express();
 
@@ -15,13 +15,13 @@ app.use(cors({
 }));
 
 mongoose.connect('mongodb://localhost:27017/yourDatabaseName')
-.then(() => {
-    console.log('MongoDB connected successfully');
-})
-.catch(err => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-});
+    .then(() => {
+        console.log('MongoDB connected successfully');
+    })
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1);
+    });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -59,9 +59,6 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
 // GridFSBucket instance
 let gfs;
 mongoose.connection.once('open', () => {
@@ -69,4 +66,48 @@ mongoose.connection.once('open', () => {
         bucketName: 'uploads'
     });
     console.log('GridFSBucket initialized');
+
+    // Define a route to list all photos
+    app.get('/flowers/list', async (req, res) => {
+        try {
+            const files = [];
+            const cursor = gfs.find();
+            for await (const doc of cursor) {
+                files.push(doc);
+            }
+            if (files.length === 0) {
+                return res.status(404).json({ message: 'No photos found' });
+            }
+            res.json(files);
+        } catch (err) {
+            console.error('Error fetching files:', err);
+            res.status(500).json({ message: 'Error fetching files' });
+        }
+    });
+
+    // Define a route to download a photo by filename
+    app.get('/flowers/download/:filename', (req, res) => {
+        const { filename } = req.params;
+        const readStream = gfs.openDownloadStreamByName(filename);
+        readStream.on('error', (error) => {
+            console.error('Error reading file from GridFS:', error);
+            res.status(500).send('Error reading file');
+        });
+        readStream.pipe(res);
+    });
+
+    // Define a route to serve photo files
+    app.get('/flowers/photos/:filename', (req, res) => {
+        const { filename } = req.params;
+        const readStream = gfs.openDownloadStreamByName(filename);
+        readStream.on('error', (error) => {
+            console.error('Error reading file from GridFS:', error);
+            res.status(500).send('Error reading file');
+        });
+        readStream.pipe(res);
+    });
 });
+
+// Start the server
+const PORT = 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

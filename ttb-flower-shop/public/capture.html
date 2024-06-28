@@ -62,6 +62,7 @@
         <button id="captureBtn">Capture Photo</button>
         <button id="confirmBtn" style="display: none;">Confirm Upload</button>
         <button id="backBtn">Back to Profile</button>
+        <button id="homeBtn">Home</button>
     </div>
     <script>
         const video = document.getElementById('video');
@@ -70,6 +71,7 @@
         const captureBtn = document.getElementById('captureBtn');
         const confirmBtn = document.getElementById('confirmBtn');
         const backBtn = document.getElementById('backBtn');
+        const homeBtn = document.getElementById('homeBtn');
         let capturedBlob = null;
 
         // Access the camera
@@ -123,14 +125,18 @@
                 body: formData
             })
             .then(response => {
+                console.log('Upload response status:', response.status);
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    return response.text().then(text => {
+                        console.error('Response text:', text);
+                        throw new Error('Network response was not ok');
+                    });
                 }
                 return response.json();
             })
             .then(data => {
                 console.log('Upload response:', data);  // Debugging log
-                alert(data.message);
+                alert('Photo uploaded successfully!');
                 const uploadedPhotoUrl = `http://localhost:3000/flowers/photos/${data.file}`;
                 capturedPhoto.src = uploadedPhotoUrl; // Update src to the uploaded photo URL
             })
@@ -143,6 +149,11 @@
         // Back to profile
         backBtn.addEventListener('click', () => {
             window.location.href = '/profile.html';
+        });
+
+        // Navigate to home
+        homeBtn.addEventListener('click', () => {
+            window.location.href = '/home.html';
         });
     </script>
 </body>
